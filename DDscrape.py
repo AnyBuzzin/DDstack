@@ -527,7 +527,7 @@ def main(db_path):
 	clear = []
 	testlist = ["https://www.donedeal.ie/cars"]
 	with concurrent.futures.ThreadPoolExecutor() as executor:
-		results = [executor.submit(ident_cards, x) for x in testlist]
+		results = [executor.submit(ident_cards, x) for x in url_genorator()]
 		for f in concurrent.futures.as_completed(results):	
 			links += f.result()
 		clear = duplicate_check(links,conn,c)
