@@ -850,7 +850,7 @@ def car_tax_imputer(c,conn) -> sqlite3:
 def car_millage_imputer(c,conn) -> sqlite3:
 	modedict = {2003:[], 2004:[], 2005:[], 2006:[], 2007:[], 2008:[], 2009:[], 2010:[], 2011:[],2012:[],2013:[],2014:[],2015:[]}
 	with conn:
-		c.execute(""" SELECT CarYear, CarMillage FROM EncodedCars;""")
+		c.execute(""" SELECT CarYear,CarMillage,CarPrice FROM EncodedCars;""")
 		data =  c.fetchall()
 		for cy, cm in data:
 			if cm != 0:
@@ -861,6 +861,7 @@ def car_millage_imputer(c,conn) -> sqlite3:
 				modedict[i] = mean(modedict[i])
 			else:
 				pass
+		print(sd)
 		for x in modedict:
 			y = modedict[x]
 			if type(y) == int or type(y) == float:
