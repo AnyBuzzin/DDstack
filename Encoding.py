@@ -1051,17 +1051,17 @@ class Compare:
 		plt.plot(df.Millage,reg.predict(df[["Millage"]]),color="blue")
 		plt.show()
 
-	def Value_Check(self,df):
-		reg = linear_model.LinearRegression()
-		reg.fit(df[["Millage"]],df.Price)
+	def Valuation(self,df):
 		print(df)
-		print("Price Standard Deviation",pstdev(df.Price))
-		print("Millage Standard Deviation",pstdev(df.Millage))
-		plt.xlabel("KM")
-		plt.ylabel("EURO")
-		plt.scatter(df.Millage,df.Price,color="red",marker="+")
-		plt.plot(df.Millage,reg.predict(df[["Millage"]]),color="blue")
-		plt.show()
+		mp  = int(mean(df.Price))
+		mm  = int(mean(df.Millage))
+		psd = int(pstdev(df.Price))
+		msd = int((pstdev(df.Millage)))
+		cp = int(self.data[-3])
+		cm = int(self.data[16])
+		if cp < mp-(psd//2) and cm < mm-(msd//2):
+			print("possible Winner here boiiiii",self.data[0])
+			self.Scatter_Plot(df)
 
 	def __str__(self):
 			return str(self.__class__) + ": " + str(self.__dict__)
@@ -1174,7 +1174,7 @@ def main(db_path,new_list):
 		car1 = Compare(i)
 		cars = car1.Retrive()
 		if len(cars) > 0:
-			car1.Value_Check(car1.Linear_Regression(cars))
+			car1.Valuation(car1.Linear_Regression(cars))
 		else:
 			pass
 
