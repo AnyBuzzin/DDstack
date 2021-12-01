@@ -855,18 +855,9 @@ def car_millage_imputer(c,conn) -> sqlite3:
 		for cy, cm in data:
 			if cm != 0:
 				modedict[cy].append(cm)
-		n  = len(modedict[2008])
-		p  = modedict[2008]
-		y = mean(modedict[2008])
-		dl = []
-		for i in p:
-			dl.append((i-y)**2)
-		dl  = sum(dl)
-		sd = dl//n
-		sd =  sqrt(sd)
-		print(int(sd))
 		for i in modedict.keys():
 			if len(modedict[i]) > 0:
+				sd = pstdev(modedict[i])
 				modedict[i] = mean(modedict[i])
 			else:
 				pass
@@ -875,6 +866,7 @@ def car_millage_imputer(c,conn) -> sqlite3:
 			if type(y) == int or type(y) == float:
 				y = int(y)
 				print(y)
+				print(sd)
 				c.execute(""" UPDATE EncodedCars SET CarMillage = :y WHERE CarMillage < 40000 OR CarMillage > 500000 AND CarYear = :x;""",
 				{'y': y, 'x': x})
 			else:
