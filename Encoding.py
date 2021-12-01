@@ -1,10 +1,10 @@
-
+from math import sqrt
 import matplotlib.pyplot as plt
 import sqlite3
 import pandas as pd 
 from datetime import datetime, timedelta
 import numpy as np
-from statistics import mode
+from statistics import mode,mean,pstdev
 from bs4 import BeautifulSoup
 import requests
 from rich.progress import track
@@ -1025,7 +1025,7 @@ class Compare:
 		return c.fetchall()
 
 	
-	def LinearRegression(self,data):
+	def Linear_Regression(self,data):
 		x = []
 		for i in data[0:-2]:
 			i = str(i).replace("(","").replace(")","").split(",")
@@ -1066,41 +1066,6 @@ class Compare:
 	def __str__(self):
 			return str(self.__class__) + ": " + str(self.__dict__)
 
-
-### scatter plot ###
-
-	# plt.xlabel("KM")
-	# plt.ylabel("EURO")
-	# plt.scatter(df.Millage,df.Price,color="red",marker="+")
-	# plt.plot(df.Millage,reg.predict(df[["Millage"]]),color="blue")
-	# plt.show()
-
-### scatter plot ###
-
-	
-	
-
-
-# c.execute(""" SELECT AdView
-# 			FROM EncodedCars 
-# 			WHERE NOT AdViews = "SOLD"
-# 			AND SellerType BETWEEN 1 AND 3
-# 			ORDER BY Adviews DESC
-# 			;""")
-# y = np.array(c.fetchall()[50:-30]).reshape(-1,1)
-# print(y)
-
-# x = scaler.fit_transform(x)
-# inversex = scaler.inverse_transform(x)
-# y = scaler.fit_transform(y)
-# inversey = scaler.inverse_transform(y)
-# # print(inversex)
-# # print(inversey)
-# print(len(y))
-# print(len(x))
-# plt.plot(x,y)
-# # plt.hist(x,bins=50)
-# plt.show()
 
 ### Removed the db_paath vairaible for testing purposes
 ### DO NOT FORGET TO REPLACE db_path to run the .exe
