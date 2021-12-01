@@ -865,8 +865,6 @@ def car_millage_imputer(c,conn) -> sqlite3:
 			y = modedict[x]
 			if type(y) == int or type(y) == float:
 				y = int(y)
-				print(y)
-				print(sd)
 				c.execute(""" UPDATE EncodedCars SET CarMillage = :y WHERE CarMillage < 40000 OR CarMillage > 500000 AND CarYear = :x;""",
 				{'y': y, 'x': x})
 			else:
@@ -1013,13 +1011,6 @@ class Compare:
 				pass
 			else:
 				self.data = [i for i in data]
-		conn.close()
-
-
-	def ComparableData(self):
-		conn = sqlite3.connect("C:\Windows\System32\lillymay/Carmex.sqlite3")
-		c = conn.cursor()
-		with conn:
 			c.execute(""" SELECT CarPrice, CarMillage
 					FROM EncodedCars
 					WHERE SellerType  = 3
@@ -1033,6 +1024,7 @@ class Compare:
 					"TooYear":self.data[11],"FuelType":self.data[14]})
 		return c.fetchall()
 
+	
 	def LinearRegression(self,data):
 		x = []
 		for i in data[0:-2]:
@@ -1048,7 +1040,23 @@ class Compare:
 		print("Asking Price ",self.data[-3])
 		print("Car Millage ",self.data[16])
 		print("  ")
+		return df
+	
+	def Scatter_Plot(sellf,df):
+		reg = linear_model.LinearRegression()
+		reg.fit(df[["Millage"]],df.Price)
+		plt.xlabel("KM")
+		plt.ylabel("EURO")
+		plt.scatter(df.Millage,df.Price,color="red",marker="+")
+		plt.plot(df.Millage,reg.predict(df[["Millage"]]),color="blue")
+		plt.show()
 
+	def Value_Check(self,df):
+		reg = linear_model.LinearRegression()
+		reg.fit(df[["Millage"]],df.Price)
+		print(df)
+		print("Price Standard Deviation",pstdev(df.Price))
+		print("Millage Standard Deviation",pstdev(df.Millage))
 		plt.xlabel("KM")
 		plt.ylabel("EURO")
 		plt.scatter(df.Millage,df.Price,color="red",marker="+")
@@ -1162,13 +1170,11 @@ def main(db_path,new_list):
 	# 		f.result()
 	# print("AdViews Updated")
 
-	print(new_list)
 	for i in new_list:
 		car1 = Compare(i)
-		car1.Retrive()
-		cars = car1.ComparableData()
+		cars = car1.Retrive()
 		if len(cars) > 0:
-			car1.LinearRegression(cars)
+			car1.Value_Check(car1.Linear_Regression(cars))
 		else:
 			pass
 
