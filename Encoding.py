@@ -11,6 +11,7 @@ from rich.progress import track
 from sklearn import linear_model, preprocessing
 import concurrent.futures
 
+
 ### SQL Connection,crsor, and instertion  functions
 def create_connection(db_path) -> sqlite3:
 		conn = None
@@ -764,6 +765,7 @@ def wanted_scrap_breaking(c,conn) -> sqlite3:
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%any-vehicle%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%wheel-stick%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%reversing-camera%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%brett-car-sales%';""")
 
 
 ### Imputations ###
@@ -848,29 +850,20 @@ def car_tax_imputer(c,conn) -> sqlite3:
         conn.commit
 	
 def car_millage_imputer(c,conn) -> sqlite3:
-	modedict = {2003:[], 2004:[], 2005:[], 2006:[], 2007:[], 2008:[], 2009:[], 2010:[], 2011:[],2012:[],2013:[],2014:[],2015:[]}
 	with conn:
-		c.execute(""" SELECT CarYear,CarMillage,CarPrice FROM EncodedCars;""")
+		c.execute(""" SELECT CarModel,CarYear,CarPrice,URL FROM EncodedCars WHERE CarMillage = 0 ;""")
 		data =  c.fetchall()
-		for cy, cm in data:
-			if cm != 0:
-				modedict[cy].append(cm)
-		for i in modedict.keys():
-			if len(modedict[i]) > 0:
-				sd = pstdev(modedict[i])
-				modedict[i] = mean(modedict[i])
-			else:
-				pass
-		print(sd)
-		for x in modedict:
-			y = modedict[x]
-			if type(y) == int or type(y) == float:
-				y = int(y)
-				c.execute(""" UPDATE EncodedCars SET CarMillage = :y WHERE CarMillage < 40000 OR CarMillage > 500000 AND CarYear = :x;""",
-				{'y': y, 'x': x})
-			else:
-				pass
-		conn.commit
+		for cm, cy, cp, url in data:
+			c.execute(""" SELECT CarMillage,CarPrice FROM EncodedCars WHERE CarModel = :cm AND CarYear = :cy;""",
+					{"cm":cm, "cy":cy})
+			data = c.fetchall()
+			mm = [i[0] for i in data]
+			mp = [i[-1] for i in data]
+			cpd = round(cp/int(mean(mp)),2)
+			mg = int(mean(mm)*cpd)
+			c.execute(""" UPDATE EncodedCars Set CarMillage = :mg WHERE URL = :url;""",
+					{"mg":mg, "url":url })
+					
 ### Imputations ###
 
 
@@ -1118,6 +1111,7 @@ def main(db_path,new_list):
 	car_seats_imputer(c,conn)
 	car_transmission_imputer(c,conn)
 	car_tax_imputer(c,conn)
+	car_millage_imputer(c,conn)
 	print("IMPUTATION COMPLETE")
 
 	### T1 = Current Time ###
@@ -1136,13 +1130,13 @@ def main(db_path,new_list):
 	# 		f.result()
 	# print("AdViews Updated")
 
-	for i in new_list:
-		car1 = Compare(i)
-		cars = car1.Retrive()
-		if len(cars) > 0:
-			car1.Valuation(car1.Linear_Regression(cars))
-		else:
-			pass
+	# for i in new_list:
+	# 	car1 = Compare(i)
+	# 	cars = car1.Retrive()
+	# 	if len(cars) > 0:
+	# 		car1.Valuation(car1.Linear_Regression(cars))
+	# 	else:
+	# 		pass
 
 if __name__ == "__main__":
 	main()
