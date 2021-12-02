@@ -10,6 +10,7 @@ import requests
 from rich.progress import track
 from sklearn import linear_model, preprocessing
 import concurrent.futures
+import webbrowser
 
 
 ### SQL Connection,crsor, and instertion  functions
@@ -614,14 +615,14 @@ def car_millage_encoder(c,conn) -> sqlite3:
 			if "km" in str(_):
 				km = str(_).replace("km","")
 				if int(km)< 1000:
-					km = str(km)+"00"
+					km = str(km)+"000"
 				c.execute(""" UPDATE EncodedCars SET CarMillage = :millage WHERE URL = :url;""",
 				{"millage":km, "url":url})
 			
 			if "mi" in str(_):
 				mi = str(_).replace("mi","")
 				if int(mi) < 1000:
-					mi = str(mi)+"00"
+					mi = str(mi)+"000"
 				mi = round(int(mi)*1.60934)
 				c.execute(""" UPDATE EncodedCars SET CarMillage = :millage WHERE URL = :url;""",
 				{"millage":mi, "url":url})
@@ -766,6 +767,7 @@ def wanted_scrap_breaking(c,conn) -> sqlite3:
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%wheel-stick%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%reversing-camera%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%brett-car-sales%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%cash-for-cars%';""")
 
 
 ### Imputations ###
@@ -851,7 +853,7 @@ def car_tax_imputer(c,conn) -> sqlite3:
 	
 def car_millage_imputer(c,conn) -> sqlite3:
 	with conn:
-		c.execute(""" SELECT CarModel,CarYear,CarPrice,URL FROM EncodedCars WHERE CarMillage = 0 OR CarMillage NOT BETWEEN 40000 AND 400000;""")
+		c.execute(""" SELECT CarModel,CarYear,CarPrice,URL FROM EncodedCars WHERE CarMillage = 0 OR CarMillage NOT BETWEEN 40000 AND 500000;""")
 		data =  c.fetchall()
 		for cm, cy, cp, url in data:
 			c.execute(""" SELECT CarMillage,CarPrice FROM EncodedCars WHERE CarModel = :cm AND CarYear = :cy;""",
@@ -1054,7 +1056,7 @@ class Compare:
 		cp = int(self.data[-3])
 		cm = int(self.data[16])
 		if cp < mp-psd and cm < mm-msd:
-			print("possible Winner here boiiiii",self.data[0])
+			webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
 			self.Scatter_Plot(df)
 
 	def __str__(self):
