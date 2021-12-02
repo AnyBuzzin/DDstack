@@ -1053,7 +1053,7 @@ class Compare:
 		msd = int((pstdev(df.Millage)))
 		cp = int(self.data[-3])
 		cm = int(self.data[16])
-		if cp < mp-(psd//2) and cm < mm-(msd//2):
+		if cp < mp-psd and cm < mm-msd:
 			print("possible Winner here boiiiii",self.data[0])
 			self.Scatter_Plot(df)
 
@@ -1130,13 +1130,13 @@ def main(db_path,new_list):
 	# 		f.result()
 	# print("AdViews Updated")
 
-	# for i in new_list:
-	# 	car1 = Compare(i)
-	# 	cars = car1.Retrive()
-	# 	if len(cars) > 0:
-	# 		car1.Valuation(car1.Linear_Regression(cars))
-	# 	else:
-	# 		pass
+	for i in new_list:
+		car1 = Compare(i)
+		cars = car1.Retrive()
+		if len(cars) > 0:
+			car1.Valuation(car1.Linear_Regression(cars))
+		else:
+			pass
 
 if __name__ == "__main__":
 	main()
