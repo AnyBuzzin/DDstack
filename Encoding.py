@@ -851,7 +851,7 @@ def car_tax_imputer(c,conn) -> sqlite3:
 	
 def car_millage_imputer(c,conn) -> sqlite3:
 	with conn:
-		c.execute(""" SELECT CarModel,CarYear,CarPrice,URL FROM EncodedCars WHERE CarMillage = 0 ;""")
+		c.execute(""" SELECT CarModel,CarYear,CarPrice,URL FROM EncodedCars WHERE CarMillage = 0 OR CarMillage NOT BETWEEN 40000 AND 400000;""")
 		data =  c.fetchall()
 		for cm, cy, cp, url in data:
 			c.execute(""" SELECT CarMillage,CarPrice FROM EncodedCars WHERE CarModel = :cm AND CarYear = :cy;""",
