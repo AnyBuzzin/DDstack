@@ -1066,6 +1066,19 @@ class Compare:
 	def __str__(self):
 			return str(self.__class__) + ": " + str(self.__dict__)
 
+def compare(new_list):
+	for i in new_list:
+			car1 = Compare(i)
+			cars = car1.Retrive()
+			if len(cars) > 2:
+					car1.Valuation(car1.Linear_Regression(cars))
+
+def ad_views_update(db_path,conn,c):
+	with concurrent.futures.ThreadPoolExecutor() as executor:
+		results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
+		for f in concurrent.futures.as_completed(results):	
+			f.result()
+	print("AdViews Updated")
 
 ### Removed the db_paath vairaible for testing purposes
 ### DO NOT FORGET TO REPLACE db_path to run the .exe
@@ -1130,19 +1143,9 @@ def main(db_path,new_list):
 	update_tsu(t1,c,conn)
 	print("TSU UPDATED")
 
-	with concurrent.futures.ThreadPoolExecutor() as executor:
-		results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
-		for f in concurrent.futures.as_completed(results):	
-			f.result()
-	print("AdViews Updated")
-
-	for i in new_list:
-		car1 = Compare(i)
-		cars = car1.Retrive()
-		if len(cars) > 2:
-			car1.Valuation(car1.Linear_Regression(cars))
-		else:
-			pass
+	ad_views_update(db_path,conn,c)
+	compare(new_list)
+	
 
 if __name__ == "__main__":
 	main()
