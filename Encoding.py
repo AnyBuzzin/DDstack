@@ -614,14 +614,14 @@ def car_millage_encoder(c,conn) -> sqlite3:
 
 			if "km" in str(_):
 				km = str(_).replace("km","")
-				if int(km)< 1000:
+				if int(km) in range(30,500):
 					km = str(km)+"000"
 				c.execute(""" UPDATE EncodedCars SET CarMillage = :millage WHERE URL = :url;""",
 				{"millage":km, "url":url})
 			
 			if "mi" in str(_):
 				mi = str(_).replace("mi","")
-				if int(mi) < 1000:
+				if int(mi) in range(30,500):
 					mi = str(mi)+"000"
 				mi = round(int(mi)*1.60934)
 				c.execute(""" UPDATE EncodedCars SET CarMillage = :millage WHERE URL = :url;""",
@@ -853,7 +853,7 @@ def car_tax_imputer(c,conn) -> sqlite3:
 	
 def car_millage_imputer(c,conn) -> sqlite3:
 	with conn:
-		c.execute(""" SELECT CarModel,CarYear,CarPrice,URL FROM EncodedCars WHERE CarMillage = 0 OR CarMillage NOT BETWEEN 40000 AND 500000;""")
+		c.execute(""" SELECT CarModel,CarYear,CarPrice,URL FROM EncodedCars WHERE CarMillage NOT BETWEEN 30000 AND 500000;""")
 		data =  c.fetchall()
 		for cm, cy, cp, url in data:
 			c.execute(""" SELECT CarMillage,CarPrice FROM EncodedCars WHERE CarModel = :cm AND CarYear = :cy;""",
@@ -863,9 +863,10 @@ def car_millage_imputer(c,conn) -> sqlite3:
 			mp = [i[-1] for i in data]
 			cpd = round(cp/int(mean(mp)),2)
 			mg = int(mean(mm)*cpd)
+			if mg < mean(mm)-(pstdev(mm*2)):
+				mg = mean(mm)
 			c.execute(""" UPDATE EncodedCars Set CarMillage = :mg WHERE URL = :url;""",
-					{"mg":mg, "url":url })
-					
+				{"mg":mg, "url":url })
 ### Imputations ###
 
 
@@ -1126,11 +1127,11 @@ def main(db_path,new_list):
 	update_tsu(t1,c,conn)
 	print("TSU UPDATED")
 
-	# with concurrent.futures.ThreadPoolExecutor() as executor:
-	# 	results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
-	# 	for f in concurrent.futures.as_completed(results):	
-	# 		f.result()
-	# print("AdViews Updated")
+	with concurrent.futures.ThreadPoolExecutor() as executor:
+		results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
+		for f in concurrent.futures.as_completed(results):	
+			f.result()
+	print("AdViews Updated")
 
 	for i in new_list:
 		car1 = Compare(i)
