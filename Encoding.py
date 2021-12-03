@@ -768,6 +768,9 @@ def wanted_scrap_breaking(c,conn) -> sqlite3:
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%reversing-camera%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%brett-car-sales%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%cash-for-cars%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%spares%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%parts%';""")
+		
 
 
 ### Imputations ###
@@ -861,7 +864,7 @@ def car_millage_imputer(c,conn) -> sqlite3:
 			data = c.fetchall()
 			mm = [i[0] for i in data]
 			mp = [i[-1] for i in data]
-			cpd = round(cp/int(mean(mp)),2)
+			cpd = round(int(mean(mp)/cp),2)
 			mg = int(mean(mm)*cpd)
 			if mg < mean(mm)-(pstdev(mm*2)):
 				mg = int(mean(mm))
@@ -1127,16 +1130,16 @@ def main(db_path,new_list):
 	update_tsu(t1,c,conn)
 	print("TSU UPDATED")
 
-	# with concurrent.futures.ThreadPoolExecutor() as executor:
-	# 	results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
-	# 	for f in concurrent.futures.as_completed(results):	
-	# 		f.result()
-	# print("AdViews Updated")
+	with concurrent.futures.ThreadPoolExecutor() as executor:
+		results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
+		for f in concurrent.futures.as_completed(results):	
+			f.result()
+	print("AdViews Updated")
 
 	for i in new_list:
 		car1 = Compare(i)
 		cars = car1.Retrive()
-		if len(cars) > 0:
+		if len(cars) > 2:
 			car1.Valuation(car1.Linear_Regression(cars))
 		else:
 			pass
