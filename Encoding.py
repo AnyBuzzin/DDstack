@@ -864,7 +864,7 @@ def car_millage_imputer(c,conn) -> sqlite3:
 			cpd = round(cp/int(mean(mp)),2)
 			mg = int(mean(mm)*cpd)
 			if mg < mean(mm)-(pstdev(mm*2)):
-				mg = mean(mm)
+				mg = int(mean(mm))
 			c.execute(""" UPDATE EncodedCars Set CarMillage = :mg WHERE URL = :url;""",
 				{"mg":mg, "url":url })
 ### Imputations ###
@@ -1127,11 +1127,11 @@ def main(db_path,new_list):
 	update_tsu(t1,c,conn)
 	print("TSU UPDATED")
 
-	with concurrent.futures.ThreadPoolExecutor() as executor:
-		results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
-		for f in concurrent.futures.as_completed(results):	
-			f.result()
-	print("AdViews Updated")
+	# with concurrent.futures.ThreadPoolExecutor() as executor:
+	# 	results = [executor.submit(ad_views, db_path, x) for x in url_gen(conn,c)]
+	# 	for f in concurrent.futures.as_completed(results):	
+	# 		f.result()
+	# print("AdViews Updated")
 
 	for i in new_list:
 		car1 = Compare(i)
