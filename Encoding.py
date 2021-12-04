@@ -11,6 +11,7 @@ from rich.progress import track
 from sklearn import linear_model, preprocessing
 import concurrent.futures
 import webbrowser
+import smtplib
 
 
 ### SQL Connection,crsor, and instertion  functions
@@ -1042,7 +1043,7 @@ class Compare:
 		print("  ")
 		return df
 	
-	def Scatter_Plot(sellf,df):
+	def Scatter_Plot(self,df):
 		reg = linear_model.LinearRegression()
 		reg.fit(df[["Millage"]],df.Price)
 		plt.xlabel("KM")
@@ -1050,6 +1051,21 @@ class Compare:
 		plt.scatter(df.Millage,df.Price,color="red",marker="+")
 		plt.plot(df.Millage,reg.predict(df[["Millage"]]),color="blue")
 		plt.show()
+
+	def email_alert(self):
+		msg = str(self.data[0])
+		sender_email = "mypythonjw@gmail.com"
+		sender_password = "beyondtwosouls"
+		reciever_email = "jasonwatchorn@gmail.com"
+		with smtplib.SMTP("smtp.gmail.com",587) as smtp:
+			smtp.ehlo()
+			smtp.starttls()
+			smtp.ehlo()
+			smtp.login(sender_email,sender_password)
+			print("login sucess")
+			smtp.sendmail(sender_email, reciever_email,msg)
+			print("email sent")
+		
 
 	def Valuation(self,df):
 		print(df)
@@ -1060,8 +1076,9 @@ class Compare:
 		cp = int(self.data[-3])
 		cm = int(self.data[16])
 		if cp < mp-psd and cm < mm-msd:
+			self.email_alert()
 			webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
-			self.Scatter_Plot(df)
+			#self.Scatter_Plot(df)
 
 	def __str__(self):
 			return str(self.__class__) + ": " + str(self.__dict__)
@@ -1143,7 +1160,7 @@ def main(db_path,new_list):
 	update_tsu(t1,c,conn)
 	print("TSU UPDATED")
 
-	ad_views_update(db_path,conn,c)
+	#ad_views_update(db_path,conn,c)
 	compare(new_list)
 	
 
