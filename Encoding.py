@@ -1066,6 +1066,10 @@ class Compare:
 			smtp.sendmail(sender_email, reciever_email,msg)
 			print("email sent")
 		
+	def read_description(self,url):
+		description = request_url(url).find("p" "InfoPanel__StyledText-sc-1j25gal-1 lnhVnl")
+		print(description)
+
 
 	def Valuation(self,df):
 		print(df)
@@ -1076,8 +1080,9 @@ class Compare:
 		cp = int(self.data[-3])
 		cm = int(self.data[16])
 		if cp < mp-psd and cm < mm-msd:
-			self.email_alert()
+			#self.email_alert()
 			webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
+			self.read_description(self.data[0])
 			#self.Scatter_Plot(df)
 
 	def __str__(self):
