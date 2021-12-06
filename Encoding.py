@@ -1014,7 +1014,7 @@ class Compare:
 				self.data = [i for i in data]
 			c.execute(""" SELECT CarPrice, CarMillage
 					FROM EncodedCars
-					WHERE SellerType  = 3
+					WHERE SellerType BETWEEN 1 AND 3
 					AND NOT URL = :url
 					AND CarModel = :Model
 					AND CarYear BETWEEN :FromYear AND :TooYear
@@ -1053,7 +1053,6 @@ class Compare:
 		plt.show()
 
 	def email_alert(self):
-		msg = str(self.data[0])
 		sender_email = "mypythonjw@gmail.com"
 		sender_password = "beyondtwosouls"
 		reciever_email = "jasonwatchorn@gmail.com"
@@ -1063,12 +1062,15 @@ class Compare:
 			smtp.ehlo()
 			smtp.login(sender_email,sender_password)
 			print("login sucess")
-			smtp.sendmail(sender_email, reciever_email,msg)
+			smtp.sendmail(sender_email, reciever_email,self.data[0])
 			print("email sent")
 		
 	def read_description(self,url):
-		description = request_url(url).find("p" "InfoPanel__StyledText-sc-1j25gal-1 lnhVnl")
-		print(description)
+		description = request_url(url).find("div", class_="SeeMoreFade__Container-sc-h0npar-0 dGFkDC").text
+		if "miles" in description:
+			return False
+		else:
+			return True
 
 
 	def Valuation(self,df):
@@ -1080,10 +1082,11 @@ class Compare:
 		cp = int(self.data[-3])
 		cm = int(self.data[16])
 		if cp < mp-psd and cm < mm-msd:
-			#self.email_alert()
-			webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
-			self.read_description(self.data[0])
-			#self.Scatter_Plot(df)
+			if self.read_description(self.data[0]) == True:
+				webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
+				self.email_alert()
+				self.Scatter_Plot(df)
+				
 
 	def __str__(self):
 			return str(self.__class__) + ": " + str(self.__dict__)
@@ -1109,6 +1112,7 @@ def main(db_path,new_list):
 	conn = create_connection(db_path)
 	c = create_cursor(conn)
 	### Encoding Functions ###
+
 	seller_type_encoder(c,conn)
 	print("ENCODED SELLER TYPE")
 	car_fuel_encoder(c,conn)
