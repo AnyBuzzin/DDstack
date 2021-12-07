@@ -1,2 +1,2 @@
 import os
-os.system("C:\Windows\System32\lillymay\Main/functionorder.py")
+os.system("C:\Users\Buzz\Documents\GitHub\DDstack/functionorder.py")
