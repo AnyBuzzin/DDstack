@@ -520,7 +520,6 @@ def data_extraction(URL) -> object:  # sourcery no-metrics
 
 def main(db_path):
 	conn = create_connection(db_path)
-	#"C:\Windows\System32\lillymay/Carmex.sqlite3"
 	c = create_cursor(conn)
 	create_table(c)
 	links = []
