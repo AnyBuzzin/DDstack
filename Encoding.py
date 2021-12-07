@@ -12,6 +12,7 @@ from sklearn import linear_model, preprocessing
 import concurrent.futures
 import webbrowser
 import smtplib
+from email.message import EmailMessage
 
 
 ### SQL Connection,crsor, and instertion  functions
@@ -931,9 +932,7 @@ def car_engine_size_scaler(conn,c,scaler) -> sqlite3:
 		scaleddata = scaler.fit_transform(data)
 		inverse = scaler.inverse_transform(scaleddata)
 		return inverse
-		# for i in scaleddata:
-		# 	print(i)
-		#inverse = scaler.inverse_transform(scaleddata)
+		
 
 def car_tax_scaler(conn,c,scaler) -> sqlite3:
 	with conn:
@@ -958,8 +957,6 @@ def car_price_scaler(conn,c,scaler) -> sqlite3:
 			data.append(_)
 		data = np.array(data).reshape(-1,1)
 		print(data)
-		# for i in data:
-		# 	print(i)
 		scaleddata = scaler.fit_transform(data)
 		inverse = scaler.inverse_transform(scaleddata)
 		return inverse
@@ -1056,17 +1053,22 @@ class Compare:
 		sender_email = "mypythonjw@gmail.com"
 		sender_password = "beyondtwosouls"
 		reciever_email = "jasonwatchorn@gmail.com"
-		with smtplib.SMTP("smtp.gmail.com",587) as smtp:
-			smtp.ehlo()
-			smtp.starttls()
-			smtp.ehlo()
-			smtp.login(sender_email,sender_password)
-			print("login sucess")
-			smtp.sendmail(sender_email, reciever_email,self.data[0])
-			print("email sent")
+		msg=EmailMessage()
+		msg["Subject"]="potential Car Deal"
+		msg["From"]="DDstack"
+		msg["To"]=reciever_email
+		msg.set_content(str(self.data[0]))#,"AskingPrice ",str(self.data[-3]),"CarMillage ",str(self.data[16]))
+		server = smtplib.SMTP_SSL("smtp.gmail.com",465)
+		server.login(sender_email,sender_password)
+		print("login sucess")
+		server.send_message(msg)
+		print("email sent")
+		server.quit()
 		
-	def read_description(self,url):
+	def further_details(self,url):
 		description = request_url(url).find("div", class_="SeeMoreFade__Container-sc-h0npar-0 dGFkDC").text
+		#image = request_url(url).find("img" class_="GalleryOnPage__Img-sc-n0nrqs-4 LNkuZ")
+
 		if "miles" in description:
 			return False
 		else:
@@ -1082,10 +1084,10 @@ class Compare:
 		cp = int(self.data[-3])
 		cm = int(self.data[16])
 		if cp < mp-psd and cm < mm-msd:
-			if self.read_description(self.data[0]) == True:
-				webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
+			if self.further_details(self.data[0]) == True:
+				#webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
 				self.email_alert()
-				self.Scatter_Plot(df)
+				#self.Scatter_Plot(df)
 				
 
 	def __str__(self):
@@ -1095,7 +1097,7 @@ def compare(new_list):
 	for i in new_list:
 			car1 = Compare(i)
 			cars = car1.Retrive()
-			if len(cars) > 2:
+			if len(cars) >2:
 					car1.Valuation(car1.Linear_Regression(cars))
 
 def ad_views_update(db_path,conn,c):
