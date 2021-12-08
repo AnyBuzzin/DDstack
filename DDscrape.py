@@ -12,12 +12,12 @@ def url_genorator() -> list:
     ### This function is far from optimal but it preforms it's function ###
     ### Needs optimizations ### 
 	### Any Vehicle Added Here Needs to be Manually Encoded ### 
-	extensions = {'/Volkswagen':['/Golf/','/Polo/','/Passat/'],
-	'/Toyota':['/Corolla/','/Yaris/'],
-	'/Audi':['/A4/','/A3/'],
-	'/BMW':['/1-Series/','/3-Series/']}
+	extensions = {'/Volkswagen':['/Golf/','/Polo/','/Passat/','/Tiguan/','/Caddy/','/Jetta/'],
+					'/Toyota':['/Corolla/','/Yaris/','/Avensis/','/Auris/','/RAV-4/'],
+					'/Audi':['/A4/','/A3/','/A5/','/A6/','/A7/','/A8/','/Q7/'],
+					'/BMW':['/1-Series/','/3-Series/','/5-Series/','/7-Series/','/X5/','/X3/']}
 	carlist = []
-	carlist1 = []
+	carlist1 = [] 
 	Page = '?start='
 	URLS = []
 	DD = 'https://www.donedeal.ie/cars'
@@ -27,13 +27,13 @@ def url_genorator() -> list:
 			carlist.append(car)
 	Year = 2007
 	for i in carlist:
-	    for s in range(Year,2015):
-	        carlist1.append(i + str(s))
-	for y in carlist1:
-	    j = 0
-	    for _ in range(12):
-	        URLS.append(DD + y + Page + str(j))
-	        j += 14
+		for s in range(Year,2015):
+			carlist1.append(i + str(s))
+	for y in carlist1: 
+		j = 0
+		for _ in range(12):
+			URLS.append(DD + y + Page + str(j))
+			j += 14
 	return URLS
 def request_url(URL: str) -> str:
 	###Sends a GET request to specified URL Using Requests libary###
