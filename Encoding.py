@@ -13,6 +13,8 @@ import concurrent.futures
 import webbrowser
 import smtplib
 from email.message import EmailMessage
+import urllib.request
+import imghdr
 
 
 ### SQL Connection,crsor, and instertion  functions
@@ -834,6 +836,7 @@ def car_price_encoder(c,conn) -> sqlite3:
 		c.execute(""" DELETE FROM EncodedCars WHERE CarPrice = 0 ;""")
 		c.execute(""" DELETE FROM EncodedCars WHERE CarPrice = 1 ;""")
 		c.execute(""" DELETE FROM EncodedCars WHERE CarPrice < 124 ;""")
+		c.execute(""" DELETE FROM EncodedCars WHERE CarPrice = 1234 ;""")
 		c.execute(""" DELETE FROM EncodedCars WHERE CarPrice = 12345 ;""")
 		c.execute(""" DELETE FROM EncodedCars WHERE CarPrice = 123456 ;""")
 		c.execute(""" DELETE FROM EncodedCars WHERE CarPrice = 1234567 ;""")
@@ -846,6 +849,7 @@ def wanted_scrap_breaking(c,conn) -> sqlite3:
 	with conn:
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%breaking%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%alloys%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%alloy-wheels%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%airbag%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%injectors%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%wanted%';""")
@@ -862,8 +866,13 @@ def wanted_scrap_breaking(c,conn) -> sqlite3:
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%cash-for-cars%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%spares%';""")
 		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%parts%';""")
-		
-
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%we-buy-cars%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%crewcab%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%vents%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%conversion%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%tyres%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%wheels%';""")
+		c.execute(""" DELETE FROM EncodedCars WHERE URL LIKE '%reduce-your-vrt%';""")
 
 ### Imputations ###
 def car_body_type_imputer(c,conn) -> sqlite3:
@@ -876,7 +885,6 @@ def car_body_type_imputer(c,conn) -> sqlite3:
 				modedict[cm].append(cbt)
 		for i in modedict.keys():
 			modedict[i] = mode(modedict[i])
-			print(modedict[i])
 		for x in modedict:
 			y = modedict[x]
 			c.execute(""" UPDATE EncodedCars SET CarBodyType = :y WHERE CarBodyType = 0 AND CarModel = :x;""",
@@ -1001,8 +1009,13 @@ def car_millage_imputer(c,conn) -> sqlite3:
 			mg = int(mean(mm)*cpd)
 			if mg < mean(mm)-(pstdev(mm*2)):
 				mg = int(mean(mm))
-			c.execute(""" UPDATE EncodedCars Set CarMillage = :mg WHERE URL = :url;""",
-				{"mg":mg, "url":url })
+			try:
+				c.execute(""" UPDATE EncodedCars Set CarMillage = :mg WHERE URL = :url;""",
+					{"mg":mg, "url":url })
+			except OverflowError:
+				mg = int(mean(mm))
+				c.execute(""" UPDATE EncodedCars Set CarMillage = :mg WHERE URL = :url;""",
+					{"mg":mg, "url":url })
 ### Imputations ###
 
 
@@ -1146,7 +1159,7 @@ class Compare:
 					AND NOT URL = :url
 					AND CarModel = :Model
 					AND CarYear BETWEEN :FromYear AND :TooYear
-					AND CarMillage > 100
+					AND CarMillage BETWEEN 30000 AND 600000
 					ORDER BY CarPrice ASC
 					;""",
 					{"url":self.data[0],"Model":self.data[10], "FromYear":self.data[11],
@@ -1180,7 +1193,7 @@ class Compare:
 		plt.plot(df.Millage,reg.predict(df[["Millage"]]),color="blue")
 		plt.show()
 
-	def email_alert(self):
+	def email_alert(self,image):
 		sender_email = "mypythonjw@gmail.com"
 		sender_password = "beyondtwosouls"
 		reciever_email = "jasonwatchorn@gmail.com"
@@ -1188,22 +1201,33 @@ class Compare:
 		msg["Subject"]="potential Car Deal"
 		msg["From"]="DDstack"
 		msg["To"]=reciever_email
-		msg.set_content(str(self.data[0]), str(self.data[-3]), str(self.data[16]))
+		msg.set_content(str(self.data[0]))
+		
+		with open(str(image), "rb") as f:
+			file_data = f.read()
+			file_type = imghdr.what(f.name)
+			file_name = f.name
+		
+		msg.add_attachment(file_data, maintype="image", subtype=file_type, filename=file_name)
 		server = smtplib.SMTP_SSL("smtp.gmail.com",465)
 		server.login(sender_email,sender_password)
 		print("login sucess")
 		server.send_message(msg)
 		print("email sent")
-		server.quit()
+		server.quit() 
 		
-	def further_details(self,url):
+	def read_description(self,url):
 		description = request_url(url).find("div", class_="SeeMoreFade__Container-sc-h0npar-0 dGFkDC").text
-		#image = request_url(url).find("img" class_="GalleryOnPage__Img-sc-n0nrqs-4 LNkuZ")
-
 		if "miles" in description:
 			return False
 		else:
 			return True
+		
+	def scrape_image(self,url) -> sqlite3:
+		image = request_url(url).find("img", class_="GalleryOnPage__Img-sc-n0nrqs-4 LNkuZ").attrs["src"]
+		img_d = urllib.request.urlretrieve(image,"C:/Windows/System32/lillymay/Main/"+str(self.data[-3])+".jpg")
+		print(img_d[0],"ScrapeReturn")
+		return img_d[0]
 
 
 	def Valuation(self,df):
@@ -1215,9 +1239,9 @@ class Compare:
 		cp = int(self.data[-3])
 		cm = int(self.data[16])
 		if cp < mp-psd and cm < mm-msd:
-			if self.further_details(self.data[0]) == True:
+			if self.read_description(self.data[0]) == True:
 				#webbrowser.get('C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s').open(self.data[0])
-				self.email_alert()
+				self.email_alert(self.scrape_image(self.data[0]))
 				#self.Scatter_Plot(df)
 				
 
@@ -1228,7 +1252,7 @@ def compare(new_list):
 	for i in new_list:
 			car1 = Compare(i)
 			cars = car1.Retrive()
-			if len(cars) >2:
+			if len(cars) > 2:
 					car1.Valuation(car1.Linear_Regression(cars))
 
 def ad_views_update(db_path,conn,c):
@@ -1302,7 +1326,7 @@ def main(db_path,new_list):
 	update_tsu(t1,c,conn)
 	print("TSU UPDATED")
 
-	ad_views_update(db_path,conn,c)
+	#ad_views_update(db_path,conn,c)
 	compare(new_list)
 	
 
