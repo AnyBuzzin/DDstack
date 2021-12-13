@@ -306,7 +306,7 @@ def data_extraction(URL) -> object:  # sourcery no-metrics
 				return None
 		def SellerName() -> str:
 			try:
-				return lxml.find("p","InfoTitle__Title-sc-qp6c10-2 hyLdjl").text
+				return lxml.find("p","InfoTitle__Title-sc-qp6c10-2 dmtIGN").text
 			except AttributeError:
 				return None
 		def SellerVerification() -> str:
@@ -336,7 +336,7 @@ def data_extraction(URL) -> object:  # sourcery no-metrics
 				return None
 		def CarLocation() -> str:
 			try:
-				return lxml.find("div", "InfoTitle__InfoTitleContainer-sc-qp6c10-0 iPMvez AdTitleBox__SInfoTitle-sc-1p2v1sf-0 bWrJlh").find("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 MWEbJ").find_next("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 MWEbJ").find_next("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 MWEbJ").text
+				return lxml.find("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 cbpQRI").text
 			except AttributeError:
 				return None
 		def CarMake(csv) -> str:
@@ -438,7 +438,7 @@ def data_extraction(URL) -> object:  # sourcery no-metrics
 				return None
 		def AdViews() -> str:
 			try:
-				return str(lxml.find("div", "InfoTitle__InfoTitleContainer-sc-qp6c10-0 iPMvez AdTitleBox__SInfoTitle-sc-1p2v1sf-0 bWrJlh").find("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 MWEbJ").find_next("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 MWEbJ").text).replace("views",'').replace(",",'')
+				return str(lxml.find("div", "InfoTitle__InfoTitleContainer-sc-qp6c10-0 iPMvez AdTitleBox__SInfoTitle-sc-1p2v1sf-0 bWrJlh").find("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 cbpQRI").find_next("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 cbpQRI").text).replace("views",'').replace(",",'')
 			except:
 				print("No AD Views Found")
 				return None
@@ -461,7 +461,7 @@ def data_extraction(URL) -> object:  # sourcery no-metrics
 						minute = datetime.now().minute,
 						second = datetime.now().second)
 			try:
-				TSU = lxml.find("div", "InfoTitle__InfoTitleContainer-sc-qp6c10-0 iPMvez AdTitleBox__SInfoTitle-sc-1p2v1sf-0 bWrJlh").find("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 MWEbJ").text	
+				TSU = lxml.find("div", "InfoTitle__InfoTitleContainer-sc-qp6c10-0 iPMvez AdTitleBox__SInfoTitle-sc-1p2v1sf-0 bWrJlh").find("li", "InfoTitle__SubtitleItem-sc-qp6c10-4 cbpQRI").text	
 				
 				if 'min' in TSU or 'mins' in TSU:
 					minutessince = str(TSU).replace(' mins', '').replace(' min', '')
